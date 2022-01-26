@@ -10,20 +10,20 @@
         >
         <v-form v-model="valid" @submit.prevent="register">
           <v-text-field
-            v-model="user.username"
+            v-model="form.username"
             required
             label="username"
             outlined
           ></v-text-field>
           <v-text-field
-            v-model="user.email"
+            v-model="form.email"
             :rules="emailRules"
             label="E-mail"
             required
             outlined
           ></v-text-field>
           <v-text-field
-            v-model="user.password"
+            v-model="form.password"
             :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
             :rules="[rules.required, rules.min]"
             :type="show1 ? 'text' : 'password'"
@@ -34,7 +34,28 @@
             @click:append="show1 = !show1"
             outlined
           ></v-text-field>
-          <v-btn color="success" block :disabled="!valid" type="submit">Sign up</v-btn>
+          <v-btn color="success" block :disabled="!valid" type="submit"
+            >Sign up</v-btn
+          >
+          <v-snackbar
+            v-model="snackbar"
+            :vertical="vertical"
+            :timeout="timeout"
+            color="green darken-4"
+          >
+            {{ text }}
+
+            <template v-slot:action="{ attrs }">
+              <v-btn
+                color="white"
+                text
+                v-bind="attrs"
+                @click="snackbar = false"
+              >
+                Close
+              </v-btn>
+            </template>
+          </v-snackbar>
         </v-form>
       </v-col>
     </v-row>
@@ -45,33 +66,45 @@
 import axios from "axios";
 
 export default {
-  name: "Login",
+  name: "Register",
   data: () => ({
     valid: false,
-
     emailRules: [
       (v) => !!v || "E-mail is required",
       (v) => /.+@.+/.test(v) || "E-mail must be valid",
     ],
-
     rules: {
       required: (value) => !!value || "Required.",
       min: (v) => v.length >= 8 || "Min 8 characters",
       emailMatch: () => `The email and password you entered don't match`,
     },
     show1: false,
-    user: {
+    form: {
       username: "",
       password: "",
       email: "",
     },
+    snackbar: false,
+    text: "Your registration is completed",
+    vertical: true,
+    timeout: 2000,
   }),
 
   methods: {
     register() {
-       axios.post('/users', {user: this.user}).then((res)=> {
-           console.log(res);
-       })
+      axios
+        .post("/users", { user: this.form })
+        .then((result) => {
+          if (result.status === 200) {
+            this.snackbar = true;
+            this.form = {
+              username: "",
+              password: "",
+              email: "",
+            };
+          }
+        })
+        .catch(this.handleError);
     },
   },
 };
