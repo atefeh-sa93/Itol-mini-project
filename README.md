@@ -1,4 +1,4 @@
-# itol-mini-project
+# itoll-mini-project
 
 ## Project Description
 This is a small articles project that shows you the list of the articles with some information, list of tags ans also you can login and register.
